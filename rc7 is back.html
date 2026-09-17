@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RC7 Internal Source - Roblox UI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .window {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-color: #1e1e1e;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .title-bar {
+            height: 32px;
+            background: linear-gradient(180deg, #323232 0%, #1a1a1a 100%);
+            border-bottom: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            flex-shrink: 0;
+        }
+
+        .title-bar span {
+            font-size: 13px;
+            font-weight: bold;
+            color: #dcdcdc;
+            letter-spacing: 0.5px;
+        }
+
+        #passpage { display: flex; }
+
+        .login-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            background: #181818;
+        }
+
+        .logo-title {
+            font-family: monospace;
+            white-space: pre;
+            color: #00a2ff;
+            font-size: 14px;
+            margin-bottom: 40px;
+            text-align: center;
+            text-shadow: 0 0 5px rgba(0, 162, 255, 0.5);
+        }
+
+        .input-group {
+            width: 320px;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            height: 32px;
+            background-color: #252526;
+            border: 1px solid #3c3c3c;
+            color: #fff;
+            padding: 0 10px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .input-group input:focus { border-color: #007acc; }
+
+        .btn-submit {
+            margin-top: 15px;
+            width: 130px;
+            height: 32px;
+            background: linear-gradient(180deg, #007acc 0%, #005999 100%);
+            border: 1px solid #004577;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-submit:hover { background: linear-gradient(180deg, #008be6 0%, #0066b3 100%); }
+        .btn-submit:active { background: #004577; }
+
+        .login-error {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #f14c4c;
+            height: 16px;
+            font-family: 'Consolas', monospace;
+        }
+
+        #mainpage {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .main-body {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            background-color: #181818;
+            overflow: hidden;
+        }
+
+        .editor-container {
+            width: 100%;
+            flex: 1;
+            background-color: #1e1e1e;
+            border: 1px solid #2d2d2d;
+            min-height: 100px;
+        }
+
+        textarea#script-input {
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            resize: none;
+            padding: 10px;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            outline: none;
+            white-space: pre;
+            overflow: auto;
+        }
+
+        .action-bar {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            flex: 1;
+            height: 34px;
+            background: linear-gradient(180deg, #2d2d2d 0%, #222222 100%);
+            border: 1px solid #3a3a3a;
+            color: #ccc;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .action-btn:hover { background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%); color: #fff; }
+        .action-btn:active { background: #1a1a1a; }
+
+        .output-container {
+            width: 100%;
+            height: 80px;
+            background-color: #101010;
+            border: 1px solid #252525;
+            padding: 6px 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            overflow-y: auto;
+            word-break: break-all;
+            flex-shrink: 0;
+        }
+
+        .output-text { color: #aaa; }
+        .output-success { color: #4ec9b0; }
+        .output-error { color: #f14c4c; }
+        .output-info { color: #569cd6; }
+    </style>
+</head>
+<body>
+
+    <div class="window" id="passpage">
+        <div class="title-bar"><span>RC7 - Authentication</span></div>
+        <div class="login-body">
+            <div class="logo-title">
+  _____    _____ 7 
+ |  __ \  / ____|
+ | |__) || |     
+ |  _  / | |     
+ | | \ \ | |____ 
+ |_|  \_\ \_____|
+            </div>
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="User">
+            </div>
+            <div class="input-group">
+                <label>Key</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+            <button class="btn-submit" onclick="login()">Submit</button>
+            <div class="login-error" id="login-error"></div>
+        </div>
+    </div>
+
+    <div class="window" id="mainpage">
+        <div class="title-bar"><span>RC7 Executor</span></div>
+        <div class="main-body">
+            <div class="editor-container">
+                <textarea id="script-input" spellcheck="false" placeholder="-- Paste your Lua script here..."></textarea>
+            </div>
+            <div class="action-bar">
+                <button class="action-btn" onclick="clearEditor()">Clear</button>
+                <button class="action-btn" onclick="executeScript()">Execute</button>
+            </div>
+            <div class="output-container" id="output">
+                <div class="output-text">[INFO] RC7 Internal Ready.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====== CONFIGURACIÓN ======
+        const VALID_KEY    = "Rc7 is back";
+        const PASTEFY_KEY  = "jhAlNQKjlnaNRbUQQXW7XlK9if63VHqOui7PMngmKdZ15wNPUdXjDOYMXEer";
+        const PASTEFY_URL  = "https://pastefy.app/api/v2/paste";
+        const SECRET_TOKEN = "sk_live_99#8x!K2@mP$Q9_INVALID_DUMMY_KEY_000000";
+        const PASTE_TITLE  = "RC7_SCRIPT_" + SECRET_TOKEN;  // Título único
+
+        // ====== LOGIN ======
+        function login() {
+            const keyInput = document.getElementById('password').value;
+            const errorEl  = document.getElementById('login-error');
+
+            if (keyInput === VALID_KEY) {
+                errorEl.textContent = '';
+                document.getElementById('passpage').style.display = 'none';
+                document.getElementById('mainpage').style.display = 'flex';
+                logOutput("Successfully authenticated!", "success");
+            } else {
+                errorEl.textContent = "Invalid key. Access denied.";
+            }
+        }
+
+        ['username', 'password'].forEach(id => {
+            document.getElementById(id).addEventListener('keydown', e => {
+                if (e.key === 'Enter') login();
+            });
+        });
+
+        function clearEditor() {
+            document.getElementById('script-input').value = '';
+            logOutput("Editor cleared.", "text");
+        }
+
+        // ====== ENVÍO A PASTEFY ======
+        async function executeScript() {
+            const code = document.getElementById('script-input').value.trim();
+            if (!code) {
+                logOutput("Editor is empty. Paste a script first.", "error");
+                return;
+            }
+
+            logOutput("Uploading script to Pastefy...", "info");
+
+            try {
+                const res = await fetch(PASTEFY_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + PASTEFY_KEY
+                    },
+                    body: JSON.stringify({
+                        title: PASTE_TITLE,
+                        content: code,
+                        visibility: "UNLISTED"
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    const id = data.id || (data.paste && data.paste.id) || "?";
+                    logOutput("Script uploaded ✔ ID: " + id, "success");
+                    logOutput("Delta will pick it up in a few seconds...", "info");
+                } else {
+                    logOutput("Upload failed: " + (data.message || res.status), "error");
+                }
+            } catch (e) {
+                logOutput("Connection error: " + e.message, "error");
+            }
+        }
+
+        function logOutput(message, type = "text") {
+            const output = document.getElementById('output');
+            let className = "output-text";
+            if (type === "success") className = "output-success";
+            if (type === "error")   className = "output-error";
+            if (type === "info")    className = "output-info";
+
+            output.innerHTML = `<div class="${className}">${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+    </script>
+</body>
+</html>
