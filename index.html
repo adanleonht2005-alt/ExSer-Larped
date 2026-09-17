@@ -40,7 +40,6 @@
             border-bottom: 1px solid #000;
             display: flex;
             align-items: center;
-            justify-content: space-between;
             padding: 0 12px;
             flex-shrink: 0;
         }
@@ -246,11 +245,8 @@
 
     <script>
         // ====== CONFIGURACIÓN ======
-        const VALID_KEY    = "Rc7 is back";
-        const PASTEFY_KEY  = "jhAlNQKjlnaNRbUQQXW7XlK9if63VHqOui7PMngmKdZ15wNPUdXjDOYMXEer";
-        const PASTEFY_URL  = "https://pastefy.app/api/v2/paste";
-        const SECRET_TOKEN = "sk_live_99#8x!K2@mP$Q9_INVALID_DUMMY_KEY_000000";
-        const PASTE_TITLE  = "RC7_SCRIPT_" + SECRET_TOKEN;  // Título único
+        const VALID_KEY  = "Rc7 is back";
+        const SERVER_URL = "https://rc7-relay.onrender.com";
 
         // ====== LOGIN ======
         function login() {
@@ -278,7 +274,7 @@
             logOutput("Editor cleared.", "text");
         }
 
-        // ====== ENVÍO A PASTEFY ======
+        // ====== ENVÍO AL SERVIDOR ======
         async function executeScript() {
             const code = document.getElementById('script-input').value.trim();
             if (!code) {
@@ -286,33 +282,29 @@
                 return;
             }
 
-            logOutput("Uploading script to Pastefy...", "info");
+            logOutput("Sending script to server...", "info");
 
             try {
-                const res = await fetch(PASTEFY_URL, {
+                const res = await fetch(SERVER_URL + "/upload", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + PASTEFY_KEY
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        title: PASTE_TITLE,
-                        content: code,
-                        visibility: "UNLISTED"
+                        token: VALID_KEY,
+                        script: code
                     })
                 });
 
                 const data = await res.json();
 
                 if (res.ok) {
-                    const id = data.id || (data.paste && data.paste.id) || "?";
-                    logOutput("Script uploaded ✔ ID: " + id, "success");
-                    logOutput("Delta will pick it up in a few seconds...", "info");
+                    logOutput("Script sent ✔ ID: " + data.id, "success");
+                    logOutput("Delta will execute it in 2-3 seconds...", "info");
                 } else {
-                    logOutput("Upload failed: " + (data.message || res.status), "error");
+                    logOutput("Server error: " + (data.error || res.status), "error");
                 }
             } catch (e) {
                 logOutput("Connection error: " + e.message, "error");
+                logOutput("(Servidor dormido, espera 30s y reintenta)", "info");
             }
         }
 
