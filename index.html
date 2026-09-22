@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ExSer Larped———101010010101010100101010101001010101010100101010101010</title>
+<meta name="viewport" content=Detecth=device-width, initial-scale=1.0">
+<title>ExSer Larped v6</title>
 <style>
   :root {
     --bg-0:       #050806;
@@ -17,6 +17,8 @@
     --border:     #1a231a;
     --red:        #ff3b3b;
     --blue:       #3b9eff;
+    --purple:     #b464ff;
+    --cyan:       #00e5ff;
   }
 
   * {
@@ -35,7 +37,6 @@
     font-size: 14px;
   }
 
-  /* ===== Fondo matrix ===== */
   #matrix {
     position: fixed;
     inset: 0;
@@ -64,13 +65,13 @@
     gap: 14px;
   }
 
-  /* ===== Topbar ===== */
   .topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding-bottom: 14px;
     border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
   }
 
   .logo-wrap {
@@ -110,8 +111,19 @@
   }
   .logo span { color: var(--orange); text-shadow: 0 0 12px rgba(255, 138, 31, 0.5); }
   .logo em   { font-style: normal; color: var(--green); text-shadow: 0 0 12px rgba(0, 255, 65, 0.45); margin-left: 2px; }
+  .logo small {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: rgba(0,255,65,0.08);
+    border: 1px solid rgba(0,255,65,0.2);
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
 
-  /* ===== Login ===== */
+  /* Login */
   .login-wrap {
     flex: 1;
     display: flex;
@@ -174,7 +186,7 @@
     text-shadow: 0 0 8px rgba(255,59,59,0.4);
   }
 
-  /* ===== Editor ===== */
+  /* Editor */
   .editor-wrap {
     flex: 1;
     display: flex;
@@ -187,6 +199,7 @@
       0 20px 60px rgba(0,0,0,0.6),
       0 0 80px rgba(0,255,65,0.04);
     min-height: 0;
+    position: relative;
   }
 
   .gutter {
@@ -228,13 +241,61 @@
   .editor::-webkit-scrollbar-thumb { background: #1e2a1e; border-radius: 5px; }
   .editor::-webkit-scrollbar-thumb:hover { background: #2a3a2a; }
 
-  /* ===== Action bar ===== */
+  /* Detection badge */
+  .detection-badge {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  .detection-badge.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .detection-badge.require {
+    background: rgba(255,138,31,0.15);
+    border: 1px solid var(--orange);
+    color: var(--orange);
+    box-shadow: 0 0 20px rgba(255,138,31,0.3);
+  }
+  .detection-badge.local {
+    background: rgba(59,158,255,0.15);
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    box-shadow: 0 0 20px rgba(59,158,255,0.3);
+  }
+  .detection-badge.backdoor {
+    background: rgba(180,100,255,0.15);
+    border: 1px solid var(--purple);
+    color: var(--purple);
+    box-shadow: 0 0 20px rgba(180,100,255,0.3);
+  }
+  .detection-badge.empty {
+    background: rgba(92,101,92,0.15);
+    border: 1px solid var(--muted);
+    color: var(--muted);
+  }
+
+  /* Action bar */
   .actions {
     display: flex;
     gap: 10px;
     align-items: center;
     padding-top: 14px;
     border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
   }
 
   button {
@@ -274,7 +335,6 @@
   }
   button.ghost:active { transform: translateY(1px); }
 
-  /* Botón Injection */
   button.injection {
     background: transparent;
     color: var(--green);
@@ -307,7 +367,7 @@
   <header class="topbar">
     <div class="logo-wrap">
       <div class="status-dot" id="dot-login"></div>
-      <div class="logo">Ex<span>Ser</span> <em>Larped</em></div>
+      <div class="logo">Ex<span>Ser</span> <em>Larped</em> <small>v6</small></div>
     </div>
   </header>
 
@@ -335,7 +395,7 @@
   <header class="topbar">
     <div class="logo-wrap">
       <div class="status-dot" id="dot-main"></div>
-      <div class="logo">Ex<span>Ser</span> <em>Larped</em></div>
+      <div class="logo">Ex<span>Ser</span> <em>Larped</em> <small>v6</small></div>
     </div>
   </header>
 
@@ -345,15 +405,15 @@
       class="editor"
       id="editor"
       spellcheck="false"
-      placeholder="-- ExSer v4&#10;-- Escribe tu código aquí..."
+      placeholder="you skid code here"
     ></textarea>
+    <div class="detection-badge" id="detection-badge"></div>
   </div>
 
   <div class="actions">
     <button class="injection" id="btn-injection">INJECTION</button>
     <button class="primary"   id="btn-execute">EXECUTE</button>
     <button class="ghost"     id="btn-clear">CLEAR</button>
-    <div class="spacer"></div>
   </div>
 </div>
 
@@ -400,13 +460,156 @@
   setInterval(drawMatrix, 55);
 
   /* =========================================================
-     ESTADO DE CONEXIÓN (dot)
+     🧠 DETECCIÓN AUTOMÁTICA
+     ========================================================= */
+  function detectScriptType(code) {
+    const trimmed = code.trim();
+
+    if (!trimmed) {
+      return { type: 'empty', mode: null, finalCode: '', reason: 'Editor vacío' };
+    }
+
+    if (/^--\s*@local/i.test(trimmed)) {
+      return { type: 'local', mode: 'local', finalCode: trimmed, reason: 'Prefijo @local detectado' };
+    }
+    if (/^--\s*@backdoor/i.test(trimmed)) {
+      return { type: 'backdoor', mode: 'backdoor', finalCode: trimmed, reason: 'Prefijo @backdoor detectado' };
+    }
+
+    const requireRegex = /^require\s*\(\s*(\d+)\s*\)\s*$/i;
+    const requireMatch = trimmed.match(requireRegex);
+
+    if (requireMatch) {
+      const id = requireMatch[1];
+      return {
+        type: 'require',
+        mode: 'backdoor',
+        finalCode: `-- @backdoor\nrequire(${id})`,
+        reason: `require(${id}) detectado → BACKDOOR`
+      };
+    }
+
+    const requireFuncRegex = /^require\s*\(\s*(\d+)\s*\)\s*[.:]/i;
+    if (requireFuncRegex.test(trimmed)) {
+      return {
+        type: 'require',
+        mode: 'backdoor',
+        finalCode: `-- @backdoor\n${trimmed}`,
+        reason: 'Require con función → BACKDOOR'
+      };
+    }
+
+    const backdoorKeywords = [
+      /\bloadstring\s*\(/i,
+      /\brequire\s*\(\s*\d+/i,
+      /\bworkspace\s*[.:]\s*[A-Z]/,
+      /\bgame\s*[.:]\s*GetService\s*\(\s*["']Players["']\s*\)\s*[.:]\s*GetPlayers/i,
+      /\bfor\s+_\s*,\s*\w+\s+in\s+pairs\s*\(\s*game\s*[.:]\s*GetService\s*\(\s*["']Players["']/i
+    ];
+
+    if (backdoorKeywords.some(regex => regex.test(trimmed))) {
+      return {
+        type: 'backdoor',
+        mode: 'backdoor',
+        finalCode: `-- @backdoor\n${trimmed}`,
+        reason: 'Código con keywords de servidor → BACKDOOR'
+      };
+    }
+
+    const localKeywords = [
+      /\bLocalPlayer\b/i,
+      /\bgame\s*[.:]\s*Players\s*[.:]\s*LocalPlayer/i,
+      /\bStarterGui\b/i,
+      /\bCamera\b/i,
+      /\bUserInputService\b/i,
+      /\bMouse\b/i,
+      /\bFly\b/i,
+      /\bSpeed\b/i,
+      /\bNoclip\b/i
+    ];
+
+    if (localKeywords.some(regex => regex.test(trimmed))) {
+      return {
+        type: 'local',
+        mode: 'local',
+        finalCode: `-- @local\n${trimmed}`,
+        reason: 'Código que afecta al jugador local → LOCAL'
+      };
+    }
+
+    const adminKeywords = [
+      /\bKick\b/i,
+      /\bBan\b/i,
+      /\bKill\s*All\b/i,
+      /\bGive\s*Tools?\b/i,
+      /\bTeleport\s*All\b/i
+    ];
+
+    if (adminKeywords.some(regex => regex.test(trimmed))) {
+      return {
+        type: 'backdoor',
+        mode: 'backdoor',
+        finalCode: `-- @backdoor\n${trimmed}`,
+        reason: 'Comando de admin detectado → BACKDOOR'
+      };
+    }
+
+    return {
+      type: 'local',
+      mode: 'local',
+      finalCode: trimmed,
+      reason: 'Script genérico → LOCAL (AUTO)'
+    };
+  }
+
+  /* =========================================================
+     BADGE DE DETECCIÓN
+     ========================================================= */
+  const detectionBadge = document.getElementById('detection-badge');
+
+  function updateDetectionBadge() {
+    const code = editor.value;
+    if (!code.trim()) {
+      detectionBadge.className = 'detection-badge empty';
+      detectionBadge.textContent = '';
+      return;
+    }
+
+    const detection = detectScriptType(code);
+
+    if (detection.type === 'empty') {
+      detectionBadge.className = 'detection-badge empty';
+      detectionBadge.textContent = '';
+      return;
+    }
+
+    let label = '';
+    let className = 'detection-badge ';
+
+    if (detection.type === 'require') {
+      label = '⚡ REQUIRE → BACKDOOR';
+      className += 'require';
+    } else if (detection.type === 'backdoor') {
+      label = '🔓 BACKDOOR';
+      className += 'backdoor';
+    } else if (detection.type === 'local') {
+      label = '💻 LOCAL';
+      className += 'local';
+    }
+
+    detectionBadge.className = className + ' show';
+    detectionBadge.textContent = label;
+  }
+
+  /* =========================================================
+     ESTADO DE CONEXIÓN
      ========================================================= */
   let connectionInterval = null;
 
   function setDot(state) {
     const dots = [document.getElementById('dot-login'), document.getElementById('dot-main')];
     dots.forEach(dot => {
+      if (!dot) return;
       dot.classList.remove('blue', 'green');
       if (state === 'blue')  dot.classList.add('blue');
       if (state === 'green') dot.classList.add('green');
@@ -444,6 +647,10 @@
       loginErr.textContent = '';
       pageLogin.classList.add('hidden');
       pageMain.classList.remove('hidden');
+
+      const username = inUser.value.trim() || 'anon';
+      localStorage.setItem('exser-user', username);
+
       updateGutter();
       editor.focus();
       startConnectionCheck();
@@ -455,6 +662,9 @@
   document.getElementById('btn-login').addEventListener('click', doLogin);
   inKey.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
   inUser.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+  const savedUser = localStorage.getItem('exser-user');
+  if (savedUser) inUser.value = savedUser;
 
   /* =========================================================
      EDITOR
@@ -480,7 +690,10 @@
 
   function syncScroll() { gutter.scrollTop = editor.scrollTop; }
 
-  editor.addEventListener('input', updateGutter);
+  editor.addEventListener('input', () => {
+    updateGutter();
+    updateDetectionBadge();
+  });
   editor.addEventListener('scroll', syncScroll);
   editor.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
@@ -490,6 +703,7 @@
       editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
       editor.selectionStart = editor.selectionEnd = start + 4;
       updateGutter();
+      updateDetectionBadge();
     }
   });
 
@@ -521,6 +735,7 @@
   document.getElementById('btn-clear').addEventListener('click', () => {
     editor.value = '';
     updateGutter();
+    updateDetectionBadge();
     editor.focus();
   });
 
@@ -528,19 +743,26 @@
     const code = editor.value.trim();
     if (!code) return;
 
+    const detection = detectScriptType(code);
+    if (detection.type === 'empty') return;
+
     try {
       await fetch(SERVER_URL + '/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: VALID_KEY, script: code })
+        body: JSON.stringify({ token: VALID_KEY, script: detection.finalCode })
       });
     } catch (e) {
       console.warn('Connection error:', e.message);
     }
   });
 
-  /* Inicial */
+  /* =========================================================
+     INICIALIZACIÓN
+     ========================================================= */
   updateGutter();
+  updateDetectionBadge();
+
 </script>
 
 </body>
