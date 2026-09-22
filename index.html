@@ -1,323 +1,547 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RC7 Internal Source - Roblox UI</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExSer Larped———101010010101010100101010101001010101010100101010101010</title>
+<style>
+  :root {
+    --bg-0:       #050806;
+    --bg-2:       #0d0d0d;
+    --green:      #00ff41;
+    --orange:     #ff8a1f;
+    --text:       #e0e0e0;
+    --text-dim:   #9aa39a;
+    --muted:      #5c655c;
+    --accent:     #8ab4f8;
+    --border:     #1a231a;
+    --red:        #ff3b3b;
+    --blue:       #3b9eff;
+  }
 
-        html, body {
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            background: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-        }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+  }
 
-        .window {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            background-color: #1e1e1e;
-            display: flex;
-            flex-direction: column;
-            z-index: 10;
-        }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-0);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+  }
 
-        .title-bar {
-            height: 32px;
-            background: linear-gradient(180deg, #323232 0%, #1a1a1a 100%);
-            border-bottom: 1px solid #000;
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-            flex-shrink: 0;
-        }
+  /* ===== Fondo matrix ===== */
+  #matrix {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.18;
+    pointer-events: none;
+  }
 
-        .title-bar span {
-            font-size: 13px;
-            font-weight: bold;
-            color: #dcdcdc;
-            letter-spacing: 0.5px;
-        }
+  .glow {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 0%,  rgba(0,255,65,0.10), transparent 70%),
+      radial-gradient(ellipse 50% 50% at 90% 100%, rgba(0,255,65,0.06), transparent 70%);
+  }
 
-        #passpage { display: flex; }
+  .app {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 22px 16px;
+    gap: 14px;
+  }
 
-        .login-body {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            background: #181818;
-        }
+  /* ===== Topbar ===== */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
 
-        .logo-title {
-            font-family: monospace;
-            white-space: pre;
-            color: #00a2ff;
-            font-size: 14px;
-            margin-bottom: 40px;
-            text-align: center;
-            text-shadow: 0 0 5px rgba(0, 162, 255, 0.5);
-        }
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-        .input-group {
-            width: 320px;
-            margin-bottom: 15px;
-        }
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+    transition: background 0.3s, box-shadow 0.3s;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .status-dot.blue {
+    background: var(--blue);
+    box-shadow: 0 0 8px var(--blue);
+  }
+  .status-dot.green {
+    background: var(--green);
+    box-shadow: 0 0 12px var(--green);
+    animation: none;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+  }
 
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            color: #aaa;
-            margin-bottom: 5px;
-        }
+  .logo {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #f5f5f0;
+  }
+  .logo span { color: var(--orange); text-shadow: 0 0 12px rgba(255, 138, 31, 0.5); }
+  .logo em   { font-style: normal; color: var(--green); text-shadow: 0 0 12px rgba(0, 255, 65, 0.45); margin-left: 2px; }
 
-        .input-group input {
-            width: 100%;
-            height: 32px;
-            background-color: #252526;
-            border: 1px solid #3c3c3c;
-            color: #fff;
-            padding: 0 10px;
-            font-size: 13px;
-            outline: none;
-        }
+  /* ===== Login ===== */
+  .login-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
 
-        .input-group input:focus { border-color: #007acc; }
+  .login-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #f5f5f0;
+    margin-bottom: 8px;
+  }
+  .login-title span { color: var(--orange); text-shadow: 0 0 12px rgba(255,138,31,0.5); }
+  .login-title em   { font-style: normal; color: var(--green); text-shadow: 0 0 12px rgba(0,255,65,0.45); }
 
-        .btn-submit {
-            margin-top: 15px;
-            width: 130px;
-            height: 32px;
-            background: linear-gradient(180deg, #007acc 0%, #005999 100%);
-            border: 1px solid #004577;
-            color: #fff;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+  .login-field {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
 
-        .btn-submit:hover { background: linear-gradient(180deg, #008be6 0%, #0066b3 100%); }
-        .btn-submit:active { background: #004577; }
+  .login-field label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
 
-        .login-error {
-            margin-top: 12px;
-            font-size: 12px;
-            color: #f14c4c;
-            height: 16px;
-            font-family: 'Consolas', monospace;
-        }
+  .login-field input {
+    width: 100%;
+    height: 38px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 0 12px;
+    font-size: 13px;
+    outline: none;
+    font-family: "JetBrains Mono", "Consolas", monospace;
+    caret-color: var(--green);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .login-field input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 1px rgba(0,255,65,0.2), 0 0 20px rgba(0,255,65,0.08);
+  }
 
-        #mainpage {
-            display: none;
-            flex-direction: column;
-            flex: 1;
-        }
+  .login-error {
+    min-height: 16px;
+    color: var(--red);
+    font-size: 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(255,59,59,0.4);
+  }
 
-        .main-body {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex: 1;
-            background-color: #181818;
-            overflow: hidden;
-        }
+  /* ===== Editor ===== */
+  .editor-wrap {
+    flex: 1;
+    display: flex;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(0,255,65,0.02),
+      0 20px 60px rgba(0,0,0,0.6),
+      0 0 80px rgba(0,255,65,0.04);
+    min-height: 0;
+  }
 
-        .editor-container {
-            width: 100%;
-            flex: 1;
-            background-color: #1e1e1e;
-            border: 1px solid #2d2d2d;
-            min-height: 100px;
-        }
+  .gutter {
+    width: 44px;
+    padding: 14px 0;
+    text-align: right;
+    font-family: "JetBrains Mono", "Consolas", "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--muted);
+    background: rgba(0, 0, 0, 0.35);
+    border-right: 1px solid var(--border);
+    user-select: none;
+    overflow: hidden;
+  }
+  .gutter .ln { padding-right: 12px; }
 
-        textarea#script-input {
-            width: 100%;
-            height: 100%;
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            border: none;
-            resize: none;
-            padding: 10px;
-            font-family: 'Consolas', 'Courier New', Courier, monospace;
-            font-size: 13px;
-            line-height: 1.5;
-            outline: none;
-            white-space: pre;
-            overflow: auto;
-        }
+  .editor {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: "JetBrains Mono", "Consolas", "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    caret-color: var(--green);
+    white-space: pre;
+    overflow: auto;
+    tab-size: 4;
+  }
+  .editor::placeholder { color: var(--muted); }
 
-        .action-bar {
-            width: 100%;
-            display: flex;
-            gap: 10px;
-            flex-shrink: 0;
-        }
+  .editor::-webkit-scrollbar,
+  .gutter::-webkit-scrollbar { width: 10px; height: 10px; }
+  .editor::-webkit-scrollbar-track { background: transparent; }
+  .editor::-webkit-scrollbar-thumb { background: #1e2a1e; border-radius: 5px; }
+  .editor::-webkit-scrollbar-thumb:hover { background: #2a3a2a; }
 
-        .action-btn {
-            flex: 1;
-            height: 34px;
-            background: linear-gradient(180deg, #2d2d2d 0%, #222222 100%);
-            border: 1px solid #3a3a3a;
-            color: #ccc;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+  /* ===== Action bar ===== */
+  .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
 
-        .action-btn:hover { background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%); color: #fff; }
-        .action-btn:active { background: #1a1a1a; }
+  button {
+    height: 36px;
+    padding: 0 22px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    outline: none;
+  }
 
-        .output-container {
-            width: 100%;
-            height: 80px;
-            background-color: #101010;
-            border: 1px solid #252525;
-            padding: 6px 8px;
-            font-family: 'Consolas', monospace;
-            font-size: 12px;
-            overflow-y: auto;
-            word-break: break-all;
-            flex-shrink: 0;
-        }
+  button.primary {
+    background: var(--accent);
+    color: #061206;
+    border: 1px solid transparent;
+    box-shadow: 0 0 20px rgba(138,180,248,0.25);
+  }
+  button.primary:hover {
+    background: #a3c6ff;
+    box-shadow: 0 0 28px rgba(138,180,248,0.45);
+  }
+  button.primary:active { transform: translateY(1px); }
 
-        .output-text { color: #aaa; }
-        .output-success { color: #4ec9b0; }
-        .output-error { color: #f14c4c; }
-        .output-info { color: #569cd6; }
-    </style>
+  button.ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid transparent;
+  }
+  button.ghost:hover {
+    color: #fff;
+    border-color: var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+  button.ghost:active { transform: translateY(1px); }
+
+  /* Botón Injection */
+  button.injection {
+    background: transparent;
+    color: var(--green);
+    border: 1px solid var(--green);
+    box-shadow: 0 0 15px rgba(0,255,65,0.2);
+  }
+  button.injection:hover {
+    background: rgba(0,255,65,0.08);
+    box-shadow: 0 0 25px rgba(0,255,65,0.4);
+  }
+  button.injection:active { transform: translateY(1px); }
+  button.injection:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .spacer { flex: 1; }
+
+  .hidden { display: none !important; }
+</style>
 </head>
 <body>
 
-    <div class="window" id="passpage">
-        <div class="title-bar"><span>RC7 - Authentication</span></div>
-        <div class="login-body">
-            <div class="logo-title">
-  _____    _____ 7 
- |  __ \  / ____|
- | |__) || |     
- |  _  / | |     
- | | \ \ | |____ 
- |_|  \_\ \_____|
-            </div>
-            <div class="input-group">
-                <label>Username</label>
-                <input type="text" id="username" placeholder="User">
-            </div>
-            <div class="input-group">
-                <label>Key</label>
-                <input type="password" id="password" placeholder="••••••••">
-            </div>
-            <button class="btn-submit" onclick="login()">Submit</button>
-            <div class="login-error" id="login-error"></div>
-        </div>
+<canvas id="matrix"></canvas>
+<div class="glow"></div>
+
+<!-- ============ LOGIN ============ -->
+<div class="app" id="page-login">
+  <header class="topbar">
+    <div class="logo-wrap">
+      <div class="status-dot" id="dot-login"></div>
+      <div class="logo">Ex<span>Ser</span> <em>Larped</em></div>
+    </div>
+  </header>
+
+  <div class="login-wrap">
+    <div class="login-title">Ex<span>Ser</span> <em>Authentication</em></div>
+
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="in-user" placeholder="user" autocomplete="off">
     </div>
 
-    <div class="window" id="mainpage">
-        <div class="title-bar"><span>RC7 Executor</span></div>
-        <div class="main-body">
-            <div class="editor-container">
-                <textarea id="script-input" spellcheck="false" placeholder="-- Paste your Lua script here..."></textarea>
-            </div>
-            <div class="action-bar">
-                <button class="action-btn" onclick="clearEditor()">Clear</button>
-                <button class="action-btn" onclick="executeScript()">Execute</button>
-            </div>
-            <div class="output-container" id="output">
-                <div class="output-text">[INFO] RC7 Internal Ready.</div>
-            </div>
-        </div>
+    <div class="login-field">
+      <label>Key</label>
+      <input type="password" id="in-key" placeholder="••••••••" autocomplete="off">
     </div>
 
-    <script>
-        // ====== CONFIGURACIÓN ======
-        const VALID_KEY  = "Rc7 is back";
-        const SERVER_URL = "https://rc7-relay.onrender.com";
+    <button class="primary" id="btn-login" style="width:320px;">SUBMIT</button>
 
-        // ====== LOGIN ======
-        function login() {
-            const keyInput = document.getElementById('password').value;
-            const errorEl  = document.getElementById('login-error');
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
 
-            if (keyInput === VALID_KEY) {
-                errorEl.textContent = '';
-                document.getElementById('passpage').style.display = 'none';
-                document.getElementById('mainpage').style.display = 'flex';
-                logOutput("Successfully authenticated!", "success");
-            } else {
-                errorEl.textContent = "Invalid key. Access denied.";
-            }
+<!-- ============ MAIN ============ -->
+<div class="app hidden" id="page-main">
+  <header class="topbar">
+    <div class="logo-wrap">
+      <div class="status-dot" id="dot-main"></div>
+      <div class="logo">Ex<span>Ser</span> <em>Larped</em></div>
+    </div>
+  </header>
+
+  <div class="editor-wrap">
+    <div class="gutter" id="gutter"><div class="ln">1</div></div>
+    <textarea
+      class="editor"
+      id="editor"
+      spellcheck="false"
+      placeholder="-- ExSer v4&#10;-- Escribe tu código aquí..."
+    ></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="injection" id="btn-injection">INJECTION</button>
+    <button class="primary"   id="btn-execute">EXECUTE</button>
+    <button class="ghost"     id="btn-clear">CLEAR</button>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<script>
+  /* =========================================================
+     CONFIG
+     ========================================================= */
+  const VALID_KEY  = "Larp67";
+  const SERVER_URL = "https://rc7-relay.onrender.com";
+
+  /* =========================================================
+     MATRIX
+     ========================================================= */
+  const canvas = document.getElementById('matrix');
+  const ctx    = canvas.getContext('2d');
+
+  function resizeCanvas() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  const fontSize = 14;
+  const chars    = '01';
+  let   columns  = Math.floor(canvas.width / fontSize);
+  let   drops    = Array(columns).fill(1);
+
+  function drawMatrix() {
+    ctx.fillStyle = 'rgba(5, 8, 6, 0.08)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = `${fontSize}px monospace`;
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars[Math.random() < 0.5 ? 0 : 1];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+  setInterval(drawMatrix, 55);
+
+  /* =========================================================
+     ESTADO DE CONEXIÓN (dot)
+     ========================================================= */
+  let connectionInterval = null;
+
+  function setDot(state) {
+    const dots = [document.getElementById('dot-login'), document.getElementById('dot-main')];
+    dots.forEach(dot => {
+      dot.classList.remove('blue', 'green');
+      if (state === 'blue')  dot.classList.add('blue');
+      if (state === 'green') dot.classList.add('green');
+    });
+  }
+
+  function startConnectionCheck() {
+    if (connectionInterval) clearInterval(connectionInterval);
+    connectionInterval = setInterval(async () => {
+      try {
+        const res = await fetch(SERVER_URL + '/inject-status');
+        const data = await res.json();
+        if (data && data.connected) {
+          setDot('green');
+        } else {
+          setDot('red');
         }
+      } catch (e) {
+        setDot('red');
+      }
+    }, 2000);
+  }
 
-        ['username', 'password'].forEach(id => {
-            document.getElementById(id).addEventListener('keydown', e => {
-                if (e.key === 'Enter') login();
-            });
-        });
+  /* =========================================================
+     LOGIN
+     ========================================================= */
+  const pageLogin = document.getElementById('page-login');
+  const pageMain  = document.getElementById('page-main');
+  const inUser    = document.getElementById('in-user');
+  const inKey     = document.getElementById('in-key');
+  const loginErr  = document.getElementById('login-error');
 
-        function clearEditor() {
-            document.getElementById('script-input').value = '';
-            logOutput("Editor cleared.", "text");
-        }
+  function doLogin() {
+    if (inKey.value === VALID_KEY) {
+      loginErr.textContent = '';
+      pageLogin.classList.add('hidden');
+      pageMain.classList.remove('hidden');
+      updateGutter();
+      editor.focus();
+      startConnectionCheck();
+    } else {
+      loginErr.textContent = 'Invalid key. Access denied.';
+    }
+  }
 
-        // ====== ENVÍO AL SERVIDOR ======
-        async function executeScript() {
-            const code = document.getElementById('script-input').value.trim();
-            if (!code) {
-                logOutput("Editor is empty. Paste a script first.", "error");
-                return;
-            }
+  document.getElementById('btn-login').addEventListener('click', doLogin);
+  inKey.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  inUser.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
-            logOutput("Sending script to server...", "info");
+  /* =========================================================
+     EDITOR
+     ========================================================= */
+  const editor = document.getElementById('editor');
+  const gutter = document.getElementById('gutter');
 
-            try {
-                const res = await fetch(SERVER_URL + "/upload", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        token: VALID_KEY,
-                        script: code
-                    })
-                });
+  function updateGutter() {
+    const lines = editor.value.split('\n').length;
+    if (gutter.children.length === lines) return;
 
-                const data = await res.json();
+    const frag = document.createDocumentFragment();
+    for (let i = 1; i <= lines; i++) {
+      const div = document.createElement('div');
+      div.className = 'ln';
+      div.textContent = i;
+      frag.appendChild(div);
+    }
+    gutter.innerHTML = '';
+    gutter.appendChild(frag);
+    syncScroll();
+  }
 
-                if (res.ok) {
-                    logOutput("Script sent ✔ ID: " + data.id, "success");
-                    logOutput("Delta will execute it in 2-3 seconds...", "info");
-                } else {
-                    logOutput("Server error: " + (data.error || res.status), "error");
-                }
-            } catch (e) {
-                logOutput("Connection error: " + e.message, "error");
-                logOutput("(Servidor dormido, espera 30s y reintenta)", "info");
-            }
-        }
+  function syncScroll() { gutter.scrollTop = editor.scrollTop; }
 
-        function logOutput(message, type = "text") {
-            const output = document.getElementById('output');
-            let className = "output-text";
-            if (type === "success") className = "output-success";
-            if (type === "error")   className = "output-error";
-            if (type === "info")    className = "output-info";
+  editor.addEventListener('input', updateGutter);
+  editor.addEventListener('scroll', syncScroll);
+  editor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = editor.selectionStart;
+      const end   = editor.selectionEnd;
+      editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+      editor.selectionStart = editor.selectionEnd = start + 4;
+      updateGutter();
+    }
+  });
 
-            output.innerHTML = `<div class="${className}">${message}</div>`;
-            output.scrollTop = output.scrollHeight;
-        }
-    </script>
+  /* =========================================================
+     BOTÓN INJECTION
+     ========================================================= */
+  const btnInjection = document.getElementById('btn-injection');
+
+  btnInjection.addEventListener('click', async () => {
+    setDot('blue');
+    btnInjection.disabled = true;
+
+    try {
+      await fetch(SERVER_URL + '/inject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: VALID_KEY })
+      });
+    } catch (e) {
+      setDot('red');
+    }
+
+    setTimeout(() => { btnInjection.disabled = false; }, 3000);
+  });
+
+  /* =========================================================
+     BOTONES EXECUTE / CLEAR
+     ========================================================= */
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    editor.value = '';
+    updateGutter();
+    editor.focus();
+  });
+
+  document.getElementById('btn-execute').addEventListener('click', async () => {
+    const code = editor.value.trim();
+    if (!code) return;
+
+    try {
+      await fetch(SERVER_URL + '/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: VALID_KEY, script: code })
+      });
+    } catch (e) {
+      console.warn('Connection error:', e.message);
+    }
+  });
+
+  /* Inicial */
+  updateGutter();
+</script>
+
 </body>
 </html>
