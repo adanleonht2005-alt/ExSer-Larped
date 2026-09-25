@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content=Detecth=device-width, initial-scale=1.0">
-<title>ExSer Larped v6</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExSer Larped v6 - Auto Detect</title>
 <style>
   :root {
     --bg-0:       #050806;
@@ -18,7 +18,6 @@
     --red:        #ff3b3b;
     --blue:       #3b9eff;
     --purple:     #b464ff;
-    --cyan:       #00e5ff;
   }
 
   * {
@@ -123,7 +122,6 @@
     letter-spacing: 0.5px;
   }
 
-  /* Login */
   .login-wrap {
     flex: 1;
     display: flex;
@@ -186,7 +184,6 @@
     text-shadow: 0 0 8px rgba(255,59,59,0.4);
   }
 
-  /* Editor */
   .editor-wrap {
     flex: 1;
     display: flex;
@@ -199,7 +196,6 @@
       0 20px 60px rgba(0,0,0,0.6),
       0 0 80px rgba(0,255,65,0.04);
     min-height: 0;
-    position: relative;
   }
 
   .gutter {
@@ -241,53 +237,6 @@
   .editor::-webkit-scrollbar-thumb { background: #1e2a1e; border-radius: 5px; }
   .editor::-webkit-scrollbar-thumb:hover { background: #2a3a2a; }
 
-  /* Detection badge */
-  .detection-badge {
-    position: absolute;
-    top: 10px;
-    right: 14px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.8px;
-    font-family: "JetBrains Mono", monospace;
-    text-transform: uppercase;
-    transition: all 0.3s;
-    z-index: 5;
-    pointer-events: none;
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  .detection-badge.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .detection-badge.require {
-    background: rgba(255,138,31,0.15);
-    border: 1px solid var(--orange);
-    color: var(--orange);
-    box-shadow: 0 0 20px rgba(255,138,31,0.3);
-  }
-  .detection-badge.local {
-    background: rgba(59,158,255,0.15);
-    border: 1px solid var(--blue);
-    color: var(--blue);
-    box-shadow: 0 0 20px rgba(59,158,255,0.3);
-  }
-  .detection-badge.backdoor {
-    background: rgba(180,100,255,0.15);
-    border: 1px solid var(--purple);
-    color: var(--purple);
-    box-shadow: 0 0 20px rgba(180,100,255,0.3);
-  }
-  .detection-badge.empty {
-    background: rgba(92,101,92,0.15);
-    border: 1px solid var(--muted);
-    color: var(--muted);
-  }
-
-  /* Action bar */
   .actions {
     display: flex;
     gap: 10px;
@@ -407,7 +356,6 @@
       spellcheck="false"
       placeholder="you skid code here"
     ></textarea>
-    <div class="detection-badge" id="detection-badge"></div>
   </div>
 
   <div class="actions">
@@ -460,145 +408,81 @@
   setInterval(drawMatrix, 55);
 
   /* =========================================================
-     🧠 DETECCIÓN AUTOMÁTICA
+     DETECCIÓN AUTOMÁTICA (silenciosa, sin badge visible)
      ========================================================= */
   function detectScriptType(code) {
     const trimmed = code.trim();
 
     if (!trimmed) {
-      return { type: 'empty', mode: null, finalCode: '', reason: 'Editor vacío' };
+      return { type: 'empty', mode: null, finalCode: '' };
     }
 
+    // 1) Prefijos manuales (prioridad máxima)
     if (/^--\s*@local/i.test(trimmed)) {
-      return { type: 'local', mode: 'local', finalCode: trimmed, reason: 'Prefijo @local detectado' };
+      return { type: 'local', mode: 'local', finalCode: trimmed };
     }
     if (/^--\s*@backdoor/i.test(trimmed)) {
-      return { type: 'backdoor', mode: 'backdoor', finalCode: trimmed, reason: 'Prefijo @backdoor detectado' };
+      return { type: 'backdoor', mode: 'backdoor', finalCode: trimmed };
     }
 
-    const requireRegex = /^require\s*\(\s*(\d+)\s*\)\s*$/i;
-    const requireMatch = trimmed.match(requireRegex);
-
-    if (requireMatch) {
-      const id = requireMatch[1];
-      return {
-        type: 'require',
-        mode: 'backdoor',
-        finalCode: `-- @backdoor\nrequire(${id})`,
-        reason: `require(${id}) detectado → BACKDOOR`
-      };
+    // 2) Require simple → BACKDOOR
+    if (/^require\s*\(\s*\d+\s*\)\s*$/i.test(trimmed)) {
+      return { type: 'require', mode: 'backdoor', finalCode: `-- @backdoor\n${trimmed}` };
     }
 
-    const requireFuncRegex = /^require\s*\(\s*(\d+)\s*\)\s*[.:]/i;
-    if (requireFuncRegex.test(trimmed)) {
-      return {
-        type: 'require',
-        mode: 'backdoor',
-        finalCode: `-- @backdoor\n${trimmed}`,
-        reason: 'Require con función → BACKDOOR'
-      };
-    }
-
-    const backdoorKeywords = [
+    // 3) Keywords reales de backdoor
+    const realBackdoorPatterns = [
       /\bloadstring\s*\(/i,
-      /\brequire\s*\(\s*\d+/i,
-      /\bworkspace\s*[.:]\s*[A-Z]/,
-      /\bgame\s*[.:]\s*GetService\s*\(\s*["']Players["']\s*\)\s*[.:]\s*GetPlayers/i,
-      /\bfor\s+_\s*,\s*\w+\s+in\s+pairs\s*\(\s*game\s*[.:]\s*GetService\s*\(\s*["']Players["']/i
+      /\brequire\s*\(\s*\d+\s*\)\s*[.:]/i,
+      /\bgame\s*:\s*GetService\s*\(\s*["']ServerStorage["']/i,
+      /\bgame\s*:\s*GetService\s*\(\s*["']ServerScriptService["']/i
     ];
 
-    if (backdoorKeywords.some(regex => regex.test(trimmed))) {
-      return {
-        type: 'backdoor',
-        mode: 'backdoor',
-        finalCode: `-- @backdoor\n${trimmed}`,
-        reason: 'Código con keywords de servidor → BACKDOOR'
-      };
+    if (realBackdoorPatterns.some(regex => regex.test(trimmed))) {
+      return { type: 'backdoor', mode: 'backdoor', finalCode: `-- @backdoor\n${trimmed}` };
     }
 
-    const localKeywords = [
+    // 4) Keywords de LOCAL
+    const localPatterns = [
       /\bLocalPlayer\b/i,
       /\bgame\s*[.:]\s*Players\s*[.:]\s*LocalPlayer/i,
+      /\bgame\s*[.:]\s*GetService\s*\(\s*["']Players["']\s*\)\s*[.:]\s*LocalPlayer/i,
       /\bStarterGui\b/i,
-      /\bCamera\b/i,
       /\bUserInputService\b/i,
-      /\bMouse\b/i,
+      /\bContextActionService\b/i,
+      /\bRunService\b/i,
+      /\bCamera\b/i,
       /\bFly\b/i,
       /\bSpeed\b/i,
-      /\bNoclip\b/i
+      /\bNoclip\b/i,
+      /\bESP\b/i,
+      /\bAimbot\b/i,
+      /\bInfinite\s*Jump\b/i,
+      /\bWalkspeed\b/i,
+      /\bJumpPower\b/i
     ];
 
-    if (localKeywords.some(regex => regex.test(trimmed))) {
-      return {
-        type: 'local',
-        mode: 'local',
-        finalCode: `-- @local\n${trimmed}`,
-        reason: 'Código que afecta al jugador local → LOCAL'
-      };
+    if (localPatterns.some(regex => regex.test(trimmed))) {
+      return { type: 'local', mode: 'local', finalCode: `-- @local\n${trimmed}` };
     }
 
-    const adminKeywords = [
-      /\bKick\b/i,
-      /\bBan\b/i,
-      /\bKill\s*All\b/i,
-      /\bGive\s*Tools?\b/i,
-      /\bTeleport\s*All\b/i
+    // 5) Fallback → LOCAL
+    const simpleLocalPatterns = [
+      /\bprint\s*\(/i,
+      /\bwarn\s*\(/i,
+      /\bwait\s*\(/i,
+      /\btask\.wait\b/i,
+      /\bspawn\s*\(/i,
+      /\btask\.spawn\b/i,
+      /\bgame\s*[.:]\s*GetService\b/i
     ];
 
-    if (adminKeywords.some(regex => regex.test(trimmed))) {
-      return {
-        type: 'backdoor',
-        mode: 'backdoor',
-        finalCode: `-- @backdoor\n${trimmed}`,
-        reason: 'Comando de admin detectado → BACKDOOR'
-      };
+    if (simpleLocalPatterns.some(regex => regex.test(trimmed))) {
+      return { type: 'local', mode: 'local', finalCode: `-- @local\n${trimmed}` };
     }
 
-    return {
-      type: 'local',
-      mode: 'local',
-      finalCode: trimmed,
-      reason: 'Script genérico → LOCAL (AUTO)'
-    };
-  }
-
-  /* =========================================================
-     BADGE DE DETECCIÓN
-     ========================================================= */
-  const detectionBadge = document.getElementById('detection-badge');
-
-  function updateDetectionBadge() {
-    const code = editor.value;
-    if (!code.trim()) {
-      detectionBadge.className = 'detection-badge empty';
-      detectionBadge.textContent = '';
-      return;
-    }
-
-    const detection = detectScriptType(code);
-
-    if (detection.type === 'empty') {
-      detectionBadge.className = 'detection-badge empty';
-      detectionBadge.textContent = '';
-      return;
-    }
-
-    let label = '';
-    let className = 'detection-badge ';
-
-    if (detection.type === 'require') {
-      label = '⚡ REQUIRE → BACKDOOR';
-      className += 'require';
-    } else if (detection.type === 'backdoor') {
-      label = '🔓 BACKDOOR';
-      className += 'backdoor';
-    } else if (detection.type === 'local') {
-      label = '💻 LOCAL';
-      className += 'local';
-    }
-
-    detectionBadge.className = className + ' show';
-    detectionBadge.textContent = label;
+    // 6) Fallback final: LOCAL sin prefijo
+    return { type: 'local', mode: 'local', finalCode: trimmed };
   }
 
   /* =========================================================
@@ -690,10 +574,7 @@
 
   function syncScroll() { gutter.scrollTop = editor.scrollTop; }
 
-  editor.addEventListener('input', () => {
-    updateGutter();
-    updateDetectionBadge();
-  });
+  editor.addEventListener('input', updateGutter);
   editor.addEventListener('scroll', syncScroll);
   editor.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
@@ -703,7 +584,6 @@
       editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
       editor.selectionStart = editor.selectionEnd = start + 4;
       updateGutter();
-      updateDetectionBadge();
     }
   });
 
@@ -735,7 +615,6 @@
   document.getElementById('btn-clear').addEventListener('click', () => {
     editor.value = '';
     updateGutter();
-    updateDetectionBadge();
     editor.focus();
   });
 
@@ -761,8 +640,6 @@
      INICIALIZACIÓN
      ========================================================= */
   updateGutter();
-  updateDetectionBadge();
-
 </script>
 
 </body>
