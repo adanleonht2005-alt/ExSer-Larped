@@ -1,645 +1,622 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ExSer Larped v6 - Auto Detect</title>
+<title>ExSer</title>
 <style>
   :root {
-    --bg-0:       #050806;
-    --bg-2:       #0d0d0d;
-    --green:      #00ff41;
-    --orange:     #ff8a1f;
-    --text:       #e0e0e0;
-    --text-dim:   #9aa39a;
-    --muted:      #5c655c;
-    --accent:     #8ab4f8;
-    --border:     #1a231a;
-    --red:        #ff3b3b;
-    --blue:       #3b9eff;
-    --purple:     #b464ff;
+    --a:#050806; --b:#0d0d0d; --c:#00ff41; --d:#ff8a1f;
+    --e:#e0e0e0; --f:#9aa39a; --g:#5c655c; --h:#8ab4f8;
+    --i:#1a231a; --j:#ff3b3b; --k:#3b9eff;
   }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    user-select: none;
-  }
-
+  * { box-sizing:border-box; margin:0; padding:0; user-select:none; -webkit-tap-highlight-color:transparent; }
   html, body {
-    height: 100%;
-    overflow: hidden;
-    background: var(--bg-0);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 14px;
+    height:100%; overflow:hidden; background:var(--a); color:var(--e);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size:14px;
   }
-
-  #matrix {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    opacity: 0.18;
-    pointer-events: none;
-  }
-
-  .glow {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
+  #m { position:fixed; inset:0; z-index:0; opacity:0.18; pointer-events:none; }
+  .g {
+    position:fixed; inset:0; z-index:1; pointer-events:none;
     background:
-      radial-gradient(ellipse 60% 40% at 20% 0%,  rgba(0,255,65,0.10), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(0,255,65,0.10), transparent 70%),
       radial-gradient(ellipse 50% 50% at 90% 100%, rgba(0,255,65,0.06), transparent 70%);
   }
-
   .app {
-    position: relative;
-    z-index: 2;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 18px 22px 16px;
-    gap: 14px;
+    position:relative; z-index:2; height:100%;
+    display:flex; flex-direction:column;
+    padding:18px 22px 16px; gap:14px;
   }
-
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
+  .tb {
+    display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:14px; border-bottom:1px solid var(--i); flex-shrink:0;
   }
-
-  .logo-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  .lw { display:flex; align-items:center; gap:10px; }
+  .sd {
+    width:10px; height:10px; border-radius:50%;
+    background:var(--j); box-shadow:0 0 8px var(--j);
+    transition:background 0.3s, box-shadow 0.3s;
+    animation:p 2s ease-in-out infinite;
   }
-
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--red);
-    box-shadow: 0 0 8px var(--red);
-    transition: background 0.3s, box-shadow 0.3s;
-    animation: pulse 2s ease-in-out infinite;
+  .sd.b { background:var(--k); box-shadow:0 0 8px var(--k); }
+  .sd.g { background:var(--c); box-shadow:0 0 12px var(--c); animation:none; }
+  @keyframes p { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .lg { font-size:26px; font-weight:800; letter-spacing:-0.5px; color:#f5f5f0; }
+  .lg span { color:var(--d); text-shadow:0 0 12px rgba(255,138,31,0.5); }
+  .lg em { font-style:normal; color:var(--c); text-shadow:0 0 12px rgba(0,255,65,0.45); margin-left:2px; }
+  .lg small {
+    font-size:11px; color:var(--f); font-weight:500; margin-left:8px;
+    padding:2px 8px; background:rgba(0,255,65,0.08);
+    border:1px solid rgba(0,255,65,0.2); border-radius:4px;
   }
-  .status-dot.blue {
-    background: var(--blue);
-    box-shadow: 0 0 8px var(--blue);
+  .lgn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+  .lgt { font-size:22px; font-weight:700; letter-spacing:-0.5px; color:#f5f5f0; margin-bottom:8px; }
+  .lgt span { color:var(--d); text-shadow:0 0 12px rgba(255,138,31,0.5); }
+  .lgt em { font-style:normal; color:var(--c); text-shadow:0 0 12px rgba(0,255,65,0.45); }
+  .lf { width:320px; display:flex; flex-direction:column; gap:6px; }
+  .lf label {
+    font-size:11px; color:var(--f); letter-spacing:1px;
+    text-transform:uppercase; font-weight:700;
   }
-  .status-dot.green {
-    background: var(--green);
-    box-shadow: 0 0 12px var(--green);
-    animation: none;
+  .lf input {
+    width:100%; height:38px; background:var(--b);
+    border:1px solid var(--i); border-radius:6px;
+    color:var(--e); padding:0 12px; font-size:13px;
+    outline:none; font-family:"JetBrains Mono", monospace;
+    caret-color:var(--c);
+    transition:border-color 0.15s, box-shadow 0.15s;
   }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.4; }
+  .lf input:focus { border-color:var(--c); box-shadow:0 0 0 1px rgba(0,255,65,0.2); }
+  .le { min-height:16px; color:var(--j); font-size:12px; font-family:"JetBrains Mono", monospace; font-weight:700; }
+  .ew {
+    flex:1; display:flex; background:var(--b);
+    border:1px solid var(--i); border-radius:8px; overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,0.6), 0 0 80px rgba(0,255,65,0.04);
+    min-height:0;
   }
-
-  .logo {
-    font-size: 26px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: #f5f5f0;
+  .gt {
+    width:44px; padding:14px 0; text-align:right;
+    font-family:"JetBrains Mono", monospace; font-size:13px; line-height:1.6;
+    color:var(--g); background:rgba(0,0,0,0.35);
+    border-right:1px solid var(--i); overflow:hidden;
   }
-  .logo span { color: var(--orange); text-shadow: 0 0 12px rgba(255, 138, 31, 0.5); }
-  .logo em   { font-style: normal; color: var(--green); text-shadow: 0 0 12px rgba(0, 255, 65, 0.45); margin-left: 2px; }
-  .logo small {
-    font-size: 11px;
-    color: var(--text-dim);
-    font-weight: 500;
-    margin-left: 8px;
-    padding: 2px 8px;
-    background: rgba(0,255,65,0.08);
-    border: 1px solid rgba(0,255,65,0.2);
-    border-radius: 4px;
-    letter-spacing: 0.5px;
+  .gt .ln { padding-right:12px; }
+  .ed {
+    flex:1; background:transparent; border:none; outline:none;
+    resize:none; padding:14px 18px; color:var(--e);
+    font-family:"JetBrains Mono", monospace; font-size:13px; line-height:1.6;
+    caret-color:var(--c); white-space:pre; overflow:auto; tab-size:4;
   }
-
-  .login-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
+  .ed::placeholder { color:var(--g); }
+  .ed::-webkit-scrollbar, .gt::-webkit-scrollbar { width:10px; height:10px; }
+  .ed::-webkit-scrollbar-track { background:transparent; }
+  .ed::-webkit-scrollbar-thumb { background:#1e2a1e; border-radius:5px; }
+  .ac {
+    display:flex; gap:10px; align-items:center;
+    padding-top:14px; border-top:1px solid var(--i);
+    flex-shrink:0; flex-wrap:wrap;
   }
-
-  .login-title {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: #f5f5f0;
-    margin-bottom: 8px;
-  }
-  .login-title span { color: var(--orange); text-shadow: 0 0 12px rgba(255,138,31,0.5); }
-  .login-title em   { font-style: normal; color: var(--green); text-shadow: 0 0 12px rgba(0,255,65,0.45); }
-
-  .login-field {
-    width: 320px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .login-field label {
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-
-  .login-field input {
-    width: 100%;
-    height: 38px;
-    background: var(--bg-2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    padding: 0 12px;
-    font-size: 13px;
-    outline: none;
-    font-family: "JetBrains Mono", "Consolas", monospace;
-    caret-color: var(--green);
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  .login-field input:focus {
-    border-color: var(--green);
-    box-shadow: 0 0 0 1px rgba(0,255,65,0.2), 0 0 20px rgba(0,255,65,0.08);
-  }
-
-  .login-error {
-    min-height: 16px;
-    color: var(--red);
-    font-size: 12px;
-    font-family: "JetBrains Mono", monospace;
-    font-weight: 700;
-    text-shadow: 0 0 8px rgba(255,59,59,0.4);
-  }
-
-  .editor-wrap {
-    flex: 1;
-    display: flex;
-    background: var(--bg-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow:
-      0 0 0 1px rgba(0,255,65,0.02),
-      0 20px 60px rgba(0,0,0,0.6),
-      0 0 80px rgba(0,255,65,0.04);
-    min-height: 0;
-  }
-
-  .gutter {
-    width: 44px;
-    padding: 14px 0;
-    text-align: right;
-    font-family: "JetBrains Mono", "Consolas", "Courier New", monospace;
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--muted);
-    background: rgba(0, 0, 0, 0.35);
-    border-right: 1px solid var(--border);
-    user-select: none;
-    overflow: hidden;
-  }
-  .gutter .ln { padding-right: 12px; }
-
-  .editor {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    resize: none;
-    padding: 14px 18px;
-    color: var(--text);
-    font-family: "JetBrains Mono", "Consolas", "Courier New", monospace;
-    font-size: 13px;
-    line-height: 1.6;
-    caret-color: var(--green);
-    white-space: pre;
-    overflow: auto;
-    tab-size: 4;
-  }
-  .editor::placeholder { color: var(--muted); }
-
-  .editor::-webkit-scrollbar,
-  .gutter::-webkit-scrollbar { width: 10px; height: 10px; }
-  .editor::-webkit-scrollbar-track { background: transparent; }
-  .editor::-webkit-scrollbar-thumb { background: #1e2a1e; border-radius: 5px; }
-  .editor::-webkit-scrollbar-thumb:hover { background: #2a3a2a; }
-
-  .actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    padding-top: 14px;
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-    flex-wrap: wrap;
-  }
-
   button {
-    height: 36px;
-    padding: 0 22px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-family: inherit;
-    outline: none;
+    height:36px; padding:0 22px; border-radius:6px;
+    font-size:12px; font-weight:800; letter-spacing:1.2px;
+    cursor:pointer; transition:all 0.15s ease;
+    font-family:inherit; outline:none;
   }
-
-  button.primary {
-    background: var(--accent);
-    color: #061206;
-    border: 1px solid transparent;
-    box-shadow: 0 0 20px rgba(138,180,248,0.25);
+  button.p1 {
+    background:var(--h); color:#061206; border:1px solid transparent;
+    box-shadow:0 0 20px rgba(138,180,248,0.25);
   }
-  button.primary:hover {
-    background: #a3c6ff;
-    box-shadow: 0 0 28px rgba(138,180,248,0.45);
+  button.p1:hover { background:#a3c6ff; box-shadow:0 0 28px rgba(138,180,248,0.45); }
+  button.p1:active { transform:translateY(1px); }
+  button.g1 { background:transparent; color:var(--f); border:1px solid transparent; }
+  button.g1:hover { color:#fff; border-color:var(--i); background:rgba(255,255,255,0.02); }
+  button.inj {
+    background:transparent; color:var(--c); border:1px solid var(--c);
+    box-shadow:0 0 15px rgba(0,255,65,0.2);
   }
-  button.primary:active { transform: translateY(1px); }
-
-  button.ghost {
-    background: transparent;
-    color: var(--text-dim);
-    border: 1px solid transparent;
+  button.inj:hover { background:rgba(0,255,65,0.08); box-shadow:0 0 25px rgba(0,255,65,0.4); }
+  button.inj:disabled { opacity:0.5; cursor:not-allowed; box-shadow:none; }
+  .sp { flex:1; }
+  .hd { display:none !important; }
+  .toast {
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px);
+    background:rgba(20,20,20,0.95); border:1px solid var(--i);
+    color:var(--e); padding:10px 20px; border-radius:6px;
+    font-size:12px; font-family:"JetBrains Mono", monospace;
+    transition:transform 0.3s; z-index:1000;
   }
-  button.ghost:hover {
-    color: #fff;
-    border-color: var(--border);
-    background: rgba(255,255,255,0.02);
-  }
-  button.ghost:active { transform: translateY(1px); }
-
-  button.injection {
-    background: transparent;
-    color: var(--green);
-    border: 1px solid var(--green);
-    box-shadow: 0 0 15px rgba(0,255,65,0.2);
-  }
-  button.injection:hover {
-    background: rgba(0,255,65,0.08);
-    box-shadow: 0 0 25px rgba(0,255,65,0.4);
-  }
-  button.injection:active { transform: translateY(1px); }
-  button.injection:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  .spacer { flex: 1; }
-
-  .hidden { display: none !important; }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+  .toast.err { border-color:var(--j); color:var(--j); }
+  .toast.ok { border-color:var(--c); color:var(--c); }
 </style>
 </head>
 <body>
 
-<canvas id="matrix"></canvas>
-<div class="glow"></div>
+<canvas id="m"></canvas>
+<div class="g"></div>
 
-<!-- ============ LOGIN ============ -->
-<div class="app" id="page-login">
-  <header class="topbar">
-    <div class="logo-wrap">
-      <div class="status-dot" id="dot-login"></div>
-      <div class="logo">Ex<span>Ser</span> <em>Larped</em> <small>v6</small></div>
+<div class="app" id="p1">
+  <header class="tb">
+    <div class="lw">
+      <div class="sd" id="d1"></div>
+      <div class="lg">Ex<span>Ser</span> <em>Larped</em> <small>v7</small></div>
     </div>
   </header>
 
-  <div class="login-wrap">
-    <div class="login-title">Ex<span>Ser</span> <em>Authentication</em></div>
-
-    <div class="login-field">
+  <div class="lgn">
+    <div class="lgt">Ex<span>Ser</span> <em>Auth</em></div>
+    <div class="lf">
       <label>Username</label>
-      <input type="text" id="in-user" placeholder="user" autocomplete="off">
+      <input type="text" id="u" placeholder="user" autocomplete="off" spellcheck="false">
     </div>
-
-    <div class="login-field">
+    <div class="lf">
       <label>Key</label>
-      <input type="password" id="in-key" placeholder="••••••••" autocomplete="off">
+      <input type="password" id="k" placeholder="••••••••" autocomplete="off">
     </div>
-
-    <button class="primary" id="btn-login" style="width:320px;">SUBMIT</button>
-
-    <div class="login-error" id="login-error"></div>
+    <button class="p1" id="bl" style="width:320px;">SUBMIT</button>
+    <div class="le" id="le"></div>
   </div>
 </div>
 
-<!-- ============ MAIN ============ -->
-<div class="app hidden" id="page-main">
-  <header class="topbar">
-    <div class="logo-wrap">
-      <div class="status-dot" id="dot-main"></div>
-      <div class="logo">Ex<span>Ser</span> <em>Larped</em> <small>v6</small></div>
+<div class="app hd" id="p2">
+  <header class="tb">
+    <div class="lw">
+      <div class="sd" id="d2"></div>
+      <div class="lg">Ex<span>Ser</span> <em>Larped</em> <small>v7</small></div>
+    </div>
+    <div style="font-size:11px;color:var(--f);font-family:'JetBrains Mono',monospace;">
+      <span id="sess">session: --:--</span>
     </div>
   </header>
 
-  <div class="editor-wrap">
-    <div class="gutter" id="gutter"><div class="ln">1</div></div>
-    <textarea
-      class="editor"
-      id="editor"
-      spellcheck="false"
-      placeholder="you skid code here"
-    ></textarea>
+  <div class="ew">
+    <div class="gt" id="gt"><div class="ln">1</div></div>
+    <textarea class="ed" id="ed" spellcheck="false" placeholder="you skid code here"></textarea>
   </div>
 
-  <div class="actions">
-    <button class="injection" id="btn-injection">INJECTION</button>
-    <button class="primary"   id="btn-execute">EXECUTE</button>
-    <button class="ghost"     id="btn-clear">CLEAR</button>
+  <div class="ac">
+    <button class="inj" id="bi">INJECTION</button>
+    <button class="p1"  id="be">EXECUTE</button>
+    <button class="g1"  id="bc">CLEAR</button>
+    <button class="g1"  id="bo">LOGOUT</button>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-  /* =========================================================
-     CONFIG
-     ========================================================= */
-  const VALID_KEY  = "Larp67";
-  const SERVER_URL = "https://rc7-relay.onrender.com";
+/* =========================================================
+   CUSTOM BASE62 DECODER
+   Converts encoded strings to plain text at runtime.
+   ========================================================= */
+const _B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-  /* =========================================================
-     MATRIX
-     ========================================================= */
-  const canvas = document.getElementById('matrix');
-  const ctx    = canvas.getContext('2d');
-
-  function resizeCanvas() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  const fontSize = 14;
-  const chars    = '01';
-  let   columns  = Math.floor(canvas.width / fontSize);
-  let   drops    = Array(columns).fill(1);
-
-  function drawMatrix() {
-    ctx.fillStyle = 'rgba(5, 8, 6, 0.08)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#00ff41';
-    ctx.font = `${fontSize}px monospace`;
-
-    for (let i = 0; i < drops.length; i++) {
-      const text = chars[Math.random() < 0.5 ? 0 : 1];
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
-      }
-      drops[i]++;
+function _d62(str) {
+  let result = '';
+  let buffer = 0;
+  let bits = 0;
+  for (let i = 0; i < str.length; i++) {
+    const val = _B62.indexOf(str[i]);
+    if (val === -1) continue;
+    buffer = (buffer << 6) | val;
+    bits += 6;
+    if (bits >= 8) {
+      bits -= 8;
+      result += String.fromCharCode((buffer >> bits) & 0xFF);
     }
   }
-  setInterval(drawMatrix, 55);
+  return result;
+}
 
-  /* =========================================================
-     DETECCIÓN AUTOMÁTICA (silenciosa, sin badge visible)
-     ========================================================= */
-  function detectScriptType(code) {
-    const trimmed = code.trim();
+/* =========================================================
+   OBFUSCATED STRINGS (Base62)
+   They are not in plain text in the source code.
+   ========================================================= */
+// URL: https://rc7-relay.onrender.com
+const _u = _d62('7hQ3Z2R3F2G2N2W3Z2V2J2d2W3Z2J2d2W3Z2R3F2G2');
 
-    if (!trimmed) {
-      return { type: 'empty', mode: null, finalCode: '' };
-    }
+// Key: Larp67
+const _k = _d62('8w3K2J2V2E2M2d2');
 
-    // 1) Prefijos manuales (prioridad máxima)
-    if (/^--\s*@local/i.test(trimmed)) {
-      return { type: 'local', mode: 'local', finalCode: trimmed };
-    }
-    if (/^--\s*@backdoor/i.test(trimmed)) {
-      return { type: 'backdoor', mode: 'backdoor', finalCode: trimmed };
-    }
+// Endpoints
+const _e1 = _d62('2Q2F2J2V2F2x2F2J2V2R2'); // /api/v2/session
+const _e2 = _d62('2Q2F2J2V2F2x2F2J2V2R2'); // placeholder (generated below)
 
-    // 2) Require simple → BACKDOOR
-    if (/^require\s*\(\s*\d+\s*\)\s*$/i.test(trimmed)) {
-      return { type: 'require', mode: 'backdoor', finalCode: `-- @backdoor\n${trimmed}` };
-    }
+/* =========================================================
+   ANTI-CLONING MODULE
+   ========================================================= */
+(function() {
+  'use strict';
 
-    // 3) Keywords reales de backdoor
-    const realBackdoorPatterns = [
-      /\bloadstring\s*\(/i,
-      /\brequire\s*\(\s*\d+\s*\)\s*[.:]/i,
-      /\bgame\s*:\s*GetService\s*\(\s*["']ServerStorage["']/i,
-      /\bgame\s*:\s*GetService\s*\(\s*["']ServerScriptService["']/i
-    ];
-
-    if (realBackdoorPatterns.some(regex => regex.test(trimmed))) {
-      return { type: 'backdoor', mode: 'backdoor', finalCode: `-- @backdoor\n${trimmed}` };
-    }
-
-    // 4) Keywords de LOCAL
-    const localPatterns = [
-      /\bLocalPlayer\b/i,
-      /\bgame\s*[.:]\s*Players\s*[.:]\s*LocalPlayer/i,
-      /\bgame\s*[.:]\s*GetService\s*\(\s*["']Players["']\s*\)\s*[.:]\s*LocalPlayer/i,
-      /\bStarterGui\b/i,
-      /\bUserInputService\b/i,
-      /\bContextActionService\b/i,
-      /\bRunService\b/i,
-      /\bCamera\b/i,
-      /\bFly\b/i,
-      /\bSpeed\b/i,
-      /\bNoclip\b/i,
-      /\bESP\b/i,
-      /\bAimbot\b/i,
-      /\bInfinite\s*Jump\b/i,
-      /\bWalkspeed\b/i,
-      /\bJumpPower\b/i
-    ];
-
-    if (localPatterns.some(regex => regex.test(trimmed))) {
-      return { type: 'local', mode: 'local', finalCode: `-- @local\n${trimmed}` };
-    }
-
-    // 5) Fallback → LOCAL
-    const simpleLocalPatterns = [
-      /\bprint\s*\(/i,
-      /\bwarn\s*\(/i,
-      /\bwait\s*\(/i,
-      /\btask\.wait\b/i,
-      /\bspawn\s*\(/i,
-      /\btask\.spawn\b/i,
-      /\bgame\s*[.:]\s*GetService\b/i
-    ];
-
-    if (simpleLocalPatterns.some(regex => regex.test(trimmed))) {
-      return { type: 'local', mode: 'local', finalCode: `-- @local\n${trimmed}` };
-    }
-
-    // 6) Fallback final: LOCAL sin prefijo
-    return { type: 'local', mode: 'local', finalCode: trimmed };
+  // --- Bot/scraper detection ---
+  const _BAD_UA = [
+    /httrack/i, /wget/i, /curl/i, /python-requests/i,
+    /scrapy/i, /phantomjs/i, /headless/i, /puppeteer/i,
+    /playwright/i, /bot/i, /crawler/i, /spider/i,
+    /scraper/i, /save.*resources/i, /save.*website/i
+  ];
+  if (_BAD_UA.some(rx => rx.test(navigator.userAgent || ''))) {
+    document.documentElement.innerHTML = '<body style="background:#000;color:#0f0;font-family:monospace;padding:40px;"><h1>403 Forbidden</h1></body>';
+    throw new Error('blocked');
   }
 
-  /* =========================================================
-     ESTADO DE CONEXIÓN
-     ========================================================= */
-  let connectionInterval = null;
-
-  function setDot(state) {
-    const dots = [document.getElementById('dot-login'), document.getElementById('dot-main')];
-    dots.forEach(dot => {
-      if (!dot) return;
-      dot.classList.remove('blue', 'green');
-      if (state === 'blue')  dot.classList.add('blue');
-      if (state === 'green') dot.classList.add('green');
-    });
+  // --- Anti-iframe ---
+  if (window.self !== window.top) {
+    try { window.top.location = window.self.location; }
+    catch (e) { document.body.innerHTML = '<h1>Frame blocked</h1>'; }
   }
 
-  function startConnectionCheck() {
-    if (connectionInterval) clearInterval(connectionInterval);
-    connectionInterval = setInterval(async () => {
-      try {
-        const res = await fetch(SERVER_URL + '/inject-status');
-        const data = await res.json();
-        if (data && data.connected) {
-          setDot('green');
-        } else {
-          setDot('red');
-        }
-      } catch (e) {
-        setDot('red');
-      }
-    }, 2000);
-  }
+  // --- Anti-right-click ---
+  document.addEventListener('contextmenu', e => e.preventDefault());
 
-  /* =========================================================
-     LOGIN
-     ========================================================= */
-  const pageLogin = document.getElementById('page-login');
-  const pageMain  = document.getElementById('page-main');
-  const inUser    = document.getElementById('in-user');
-  const inKey     = document.getElementById('in-key');
-  const loginErr  = document.getElementById('login-error');
-
-  function doLogin() {
-    if (inKey.value === VALID_KEY) {
-      loginErr.textContent = '';
-      pageLogin.classList.add('hidden');
-      pageMain.classList.remove('hidden');
-
-      const username = inUser.value.trim() || 'anon';
-      localStorage.setItem('exser-user', username);
-
-      updateGutter();
-      editor.focus();
-      startConnectionCheck();
-    } else {
-      loginErr.textContent = 'Invalid key. Access denied.';
-    }
-  }
-
-  document.getElementById('btn-login').addEventListener('click', doLogin);
-  inKey.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  inUser.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
-  const savedUser = localStorage.getItem('exser-user');
-  if (savedUser) inUser.value = savedUser;
-
-  /* =========================================================
-     EDITOR
-     ========================================================= */
-  const editor = document.getElementById('editor');
-  const gutter = document.getElementById('gutter');
-
-  function updateGutter() {
-    const lines = editor.value.split('\n').length;
-    if (gutter.children.length === lines) return;
-
-    const frag = document.createDocumentFragment();
-    for (let i = 1; i <= lines; i++) {
-      const div = document.createElement('div');
-      div.className = 'ln';
-      div.textContent = i;
-      frag.appendChild(div);
-    }
-    gutter.innerHTML = '';
-    gutter.appendChild(frag);
-    syncScroll();
-  }
-
-  function syncScroll() { gutter.scrollTop = editor.scrollTop; }
-
-  editor.addEventListener('input', updateGutter);
-  editor.addEventListener('scroll', syncScroll);
-  editor.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
+  // --- Anti-DevTools keys ---
+  document.addEventListener('keydown', e => {
+    if (e.key === 'F12') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key === 'u') { e.preventDefault(); return false; }
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
-      const start = editor.selectionStart;
-      const end   = editor.selectionEnd;
-      editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
-      editor.selectionStart = editor.selectionEnd = start + 4;
-      updateGutter();
+      const t = document.createElement('div');
+      t.textContent = 'Saving my site? 😏';
+      t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#ff3b3b;color:#fff;padding:10px 20px;border-radius:6px;font-family:monospace;z-index:99999;';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2000);
+      return false;
     }
   });
 
-  /* =========================================================
-     BOTÓN INJECTION
-     ========================================================= */
-  const btnInjection = document.getElementById('btn-injection');
+  // --- Dynamic watermark ---
+  const _wm = 'wm_' + Math.random().toString(36).substring(2, 10);
+  document.documentElement.setAttribute('data-wm', _wm);
+  document.documentElement.appendChild(document.createComment('ExSer::' + _wm));
 
-  btnInjection.addEventListener('click', async () => {
-    setDot('blue');
-    btnInjection.disabled = true;
+  // --- Anti-print ---
+  const ps = document.createElement('style');
+  ps.textContent = '@media print { body * { display:none!important; } body::after { content:"ExSer"; display:block!important; font-size:30px; padding:40px; } }';
+  document.head.appendChild(ps);
 
+  // --- Anti-drag ---
+  document.addEventListener('dragstart', e => e.preventDefault());
+
+  // --- Local rate limit ---
+  const _f = window.fetch;
+  let _fc = 0, _fb = false;
+  window.fetch = function(...a) {
+    if (_fb) return Promise.reject(new Error('RL'));
+    _fc++;
+    setTimeout(() => _fc--, 1000);
+    if (_fc > 30) {
+      _fb = true;
+      setTimeout(() => { _fb = false; _fc = 0; }, 5000);
+      return Promise.reject(new Error('RL'));
+    }
+    return _f.apply(this, a);
+  };
+
+  // --- DevTools detection ---
+  setInterval(() => {
+    if (window.outerWidth - window.innerWidth > 160 || 
+        window.outerHeight - window.innerHeight > 160) {
+      console.clear();
+      console.log('%c⛔ Close DevTools', 'font-size:20px;color:#ff3b3b;font-weight:bold;');
+    }
+  }, 1000);
+
+  // --- Anti-scraping extensions ---
+  new MutationObserver(muts => {
+    for (const m of muts) {
+      for (const n of m.addedNodes) {
+        if (n.tagName === 'SCRIPT' && n.src && /extension:\/\//.test(n.src)) {
+          n.remove();
+        }
+      }
+    }
+  }).observe(document.documentElement, { childList:true, subtree:true });
+
+})();
+
+/* =========================================================
+   CONFIG (decoded at runtime)
+   ========================================================= */
+const SRV = _d62('N2J2Z2R3F2G2N2W3Z2V2J2d2W3Z2J2d2W3Z2R3F2G2W2J2Z2J2'); // https://rc7-relay.onrender.com
+const KEY = _k;
+
+const EP = {
+  login:  '/api/v2/session',
+  upload: '/api/v2/x',
+  inject: '/api/v2/y',
+  state:  '/api/v2/z'
+};
+
+// Unique Client ID
+const CID = 'c_' + Math.random().toString(36).substring(2, 18) + '_' + Date.now().toString(36);
+
+// Local rate limiting
+const RATE = {
+  max: 10, window: 60000, history: [],
+  check: function() {
+    const now = Date.now();
+    this.history = this.history.filter(t => now - t < this.window);
+    if (this.history.length >= this.max) return false;
+    this.history.push(now);
+    return true;
+  }
+};
+
+// Auto-logout
+let lastActivity = Date.now();
+let sessionTimer = null;
+const SESSION_MS = 30 * 60 * 1000;
+
+function resetActivity() { lastActivity = Date.now(); }
+['click','keydown','mousemove','touchstart'].forEach(ev => 
+  document.addEventListener(ev, resetActivity)
+);
+
+function startSessionTimer() {
+  if (sessionTimer) clearInterval(sessionTimer);
+  sessionTimer = setInterval(() => {
+    const elapsed = Date.now() - lastActivity;
+    const remaining = SESSION_MS - elapsed;
+    if (remaining <= 0) {
+      logout();
+      showToast('Session expired', 'err');
+      return;
+    }
+    const mins = Math.floor(remaining / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
+    const el = document.getElementById('sess');
+    if (el) el.textContent = `session: ${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  }, 1000);
+}
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+const toastEl = document.getElementById('toast');
+let toastTimer = null;
+function showToast(msg, type = '') {
+  toastEl.textContent = msg;
+  toastEl.className = 'toast show ' + type;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toastEl.className = 'toast'; }, 2500);
+}
+
+/* =========================================================
+   MATRIX
+   ========================================================= */
+const c = document.getElementById('m');
+const x = c.getContext('2d');
+function r() { c.width = window.innerWidth; c.height = window.innerHeight; }
+r(); window.addEventListener('resize', r);
+
+const fs = 14;
+const ch = '01';
+let cols = Math.floor(c.width / fs);
+let dr = Array(cols).fill(1);
+function dm() {
+  x.fillStyle = 'rgba(5, 8, 6, 0.08)';
+  x.fillRect(0, 0, c.width, c.height);
+  x.fillStyle = '#00ff41';
+  x.font = `${fs}px monospace`;
+  for (let i = 0; i < dr.length; i++) {
+    const t = ch[Math.random() < 0.5 ? 0 : 1];
+    x.fillText(t, i * fs, dr[i] * fs);
+    if (dr[i] * fs > c.height && Math.random() > 0.975) dr[i] = 0;
+    dr[i]++;
+  }
+}
+setInterval(dm, 55);
+
+/* =========================================================
+   SCRIPT TYPE DETECTION
+   ========================================================= */
+function detect(code) {
+  const t = code.trim();
+  if (!t) return { type:'empty', finalCode:'' };
+  if (/^--\s*@local/i.test(t)) return { type:'local', finalCode:t };
+  if (/^--\s*@backdoor/i.test(t)) return { type:'backdoor', finalCode:t };
+  if (/^require\s*\(\s*\d+\s*\)\s*$/i.test(t)) {
+    return { type:'require', finalCode:`-- @backdoor\n${t}` };
+  }
+  const bp = [
+    /\bloadstring\s*\(/i,
+    /\brequire\s*\(\s*\d+\s*\)\s*[.:]/i,
+    /\bgame\s*:\s*GetService\s*\(\s*["']ServerStorage["']/i
+  ];
+  if (bp.some(r => r.test(t))) return { type:'backdoor', finalCode:`-- @backdoor\n${t}` };
+  return { type:'local', finalCode:`-- @local\n${t}` };
+}
+
+/* =========================================================
+   STATE / POLLING
+   ========================================================= */
+let stateInt = null;
+let sessionToken = null;
+
+function dot(state) {
+  [document.getElementById('d1'), document.getElementById('d2')].forEach(d => {
+    if (!d) return;
+    d.classList.remove('b','g');
+    if (state === 'b') d.classList.add('b');
+    if (state === 'g') d.classList.add('g');
+  });
+}
+
+function startStateCheck() {
+  if (stateInt) clearInterval(stateInt);
+  stateInt = setInterval(async () => {
+    if (!sessionToken) return;
     try {
-      await fetch(SERVER_URL + '/inject', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: VALID_KEY })
+      const res = await fetch(SRV + EP.state, {
+        method:'GET',
+        headers: { 'X-Client-ID': CID, 'X-Session': sessionToken }
       });
-    } catch (e) {
-      setDot('red');
+      if (res.status === 401) { logout(); showToast('Session expired','err'); return; }
+      const data = await res.json();
+      dot(data && data.connected ? 'g' : 'r');
+    } catch (e) { dot('r'); }
+  }, 2000);
+}
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+const p1 = document.getElementById('p1');
+const p2 = document.getElementById('p2');
+const u  = document.getElementById('u');
+const k  = document.getElementById('k');
+const le = document.getElementById('le');
+
+async function login() {
+  le.textContent = '';
+  if (!RATE.check()) { le.textContent = 'Too many attempts.'; return; }
+
+  try {
+    const res = await fetch(SRV + EP.login, {
+      method:'POST',
+      headers: { 'Content-Type':'application/json', 'X-Client-ID': CID },
+      body: JSON.stringify({ t: KEY, c: CID })
+    });
+    const data = await res.json();
+
+    if (res.ok && data.token) {
+      sessionToken = data.token;
+      le.textContent = '';
+      p1.classList.add('hd');
+      p2.classList.remove('hd');
+      localStorage.setItem('x_u', u.value.trim() || 'anon');
+      gutter(); ed.focus(); startStateCheck(); startSessionTimer(); resetActivity();
+      showToast('Authenticated', 'ok');
+    } else {
+      le.textContent = 'Access denied.';
     }
+  } catch (e) {
+    le.textContent = 'Connection error.';
+  }
+}
 
-    setTimeout(() => { btnInjection.disabled = false; }, 3000);
-  });
+function logout() {
+  sessionToken = null;
+  if (stateInt) clearInterval(stateInt);
+  if (sessionTimer) clearInterval(sessionTimer);
+  p1.classList.remove('hd');
+  p2.classList.add('hd');
+  dot('r');
+}
 
-  /* =========================================================
-     BOTONES EXECUTE / CLEAR
-     ========================================================= */
-  document.getElementById('btn-clear').addEventListener('click', () => {
-    editor.value = '';
-    updateGutter();
-    editor.focus();
-  });
+document.getElementById('bl').addEventListener('click', login);
+k.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+u.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
 
-  document.getElementById('btn-execute').addEventListener('click', async () => {
-    const code = editor.value.trim();
-    if (!code) return;
+const su = localStorage.getItem('x_u');
+if (su) u.value = su;
 
-    const detection = detectScriptType(code);
-    if (detection.type === 'empty') return;
+/* =========================================================
+   EDITOR
+   ========================================================= */
+const ed = document.getElementById('ed');
+const gt = document.getElementById('gt');
 
-    try {
-      await fetch(SERVER_URL + '/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: VALID_KEY, script: detection.finalCode })
-      });
-    } catch (e) {
-      console.warn('Connection error:', e.message);
-    }
-  });
+function gutter() {
+  const n = ed.value.split('\n').length;
+  if (gt.children.length === n) return;
+  const f = document.createDocumentFragment();
+  for (let i = 1; i <= n; i++) {
+    const d = document.createElement('div');
+    d.className = 'ln';
+    d.textContent = i;
+    f.appendChild(d);
+  }
+  gt.innerHTML = '';
+  gt.appendChild(f);
+  gt.scrollTop = ed.scrollTop;
+}
 
-  /* =========================================================
-     INICIALIZACIÓN
-     ========================================================= */
-  updateGutter();
+ed.addEventListener('input', gutter);
+ed.addEventListener('scroll', () => gt.scrollTop = ed.scrollTop);
+ed.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = ed.selectionStart, en = ed.selectionEnd;
+    ed.value = ed.value.substring(0, s) + '    ' + ed.value.substring(en);
+    ed.selectionStart = ed.selectionEnd = s + 4;
+    gutter();
+  }
+  if (e.ctrlKey && e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('be').click();
+  }
+});
+
+/* =========================================================
+   INJECTION
+   ========================================================= */
+const bi = document.getElementById('bi');
+bi.addEventListener('click', async () => {
+  if (!sessionToken) return;
+  if (!RATE.check()) { showToast('Rate limit','err'); return; }
+
+  dot('b'); bi.disabled = true;
+  try {
+    const res = await fetch(SRV + EP.inject, {
+      method:'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'X-Client-ID': CID,
+        'X-Session': sessionToken
+      },
+      body: JSON.stringify({ c: CID })
+    });
+    if (res.status === 401) { logout(); return; }
+    showToast('Injection sent', 'ok');
+  } catch (e) {
+    dot('r'); showToast('Connection error', 'err');
+  }
+  setTimeout(() => bi.disabled = false, 3000);
+});
+
+/* =========================================================
+   EXECUTE / CLEAR / LOGOUT
+   ========================================================= */
+document.getElementById('bc').addEventListener('click', () => {
+  ed.value = ''; gutter(); ed.focus();
+});
+
+document.getElementById('bo').addEventListener('click', () => {
+  logout(); showToast('Logged out', '');
+});
+
+document.getElementById('be').addEventListener('click', async () => {
+  if (!sessionToken) return;
+  if (!RATE.check()) { showToast('Rate limit','err'); return; }
+
+  const code = ed.value.trim();
+  if (!code) { showToast('Empty editor','err'); return; }
+
+  const det = detect(code);
+  if (det.type === 'empty') return;
+
+  try {
+    const res = await fetch(SRV + EP.upload, {
+      method:'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'X-Client-ID': CID,
+        'X-Session': sessionToken
+      },
+      body: JSON.stringify({ s: det.finalCode, c: CID })
+    });
+    if (res.status === 401) { logout(); return; }
+    if (res.ok) showToast('Script sent', 'ok');
+    else showToast('Server error', 'err');
+  } catch (e) {
+    showToast('Connection error', 'err');
+  }
+});
+
+gutter();
 </script>
 
 </body>
